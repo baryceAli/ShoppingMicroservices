@@ -1,2 +1,23 @@
-Enable Kubernetes Dashboard
+
+# use kubectl instead of microk8s kubectl
+microk8s kubectl > ~/.kube/config
+
+
+
+# Access dashboard
+# Port forwarding:
 microk8s kubectl -n kubernetes-dashboard port-forward svc/kubernetes-dashboard-kong-proxy 8443:443
+
+
+# Access token:
+sudo microk8s kubectl describe secret -n kube-system microk8s-dashboard-token
+
+URL:
+https://localhost:8443/
+
+
+# Running commands in a Pod 
+kubectl run -it --rm --restart=Never busybox --image=gcr.io/google-containers/busybox sh
+
+# Get IP of mssql db
+kubectl get nodes -o wide

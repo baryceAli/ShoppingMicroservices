@@ -8,7 +8,16 @@ namespace ShoppingMicroservices.Services.CouponAPI.Mapper
     [Mapper(EnumMappingStrategy = EnumMappingStrategy.ByName)]
     public static partial class CouponMapper
     {
+
+        // [MapProperty(nameof(coupon.CouponId), nameof(CouponDto.CouponId))]
         public static partial CouponDto MapCouponToDto(Coupon coupon);
+        public static partial IEnumerable<CouponDto> MapCouponToDto(IEnumerable<Coupon> coupons);
+
+
+        // public static partial Coupon MapDtoToCoupon(CouponDto couponDto);
+        // public static partial IEnumerable<Coupon> MapDtoToCoupon(IEnumerable<CouponDto> couponDtos);
+
+        public static partial Coupon MapAddCouponDtoToCoupon(AddCouponDto addCouponDto);
 
     }
 }
