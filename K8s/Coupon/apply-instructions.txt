@@ -1,0 +1,6 @@
+# kubectl delete statefulset mssql -n coupon
+# kubectl delete pvc -n coupon --all
+# kubectl apply -f ./K8s/Coupon/mssql-storageclass-depl.yaml -n coupon
+# kubectl apply -f ./K8s/Coupon/sqlserver-srv.yaml -n coupon
+# kubectl apply -f ./K8s/Coupon/sqlserver-secret.yaml -n coupon
+# kubectl apply -f ./K8s/Coupon/sqlserver-depl.yaml -n coupon
