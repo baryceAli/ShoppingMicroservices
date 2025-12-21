@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using ShoppingMicroservices.Services.CouponAPI.Models;
 
 namespace ShoppingMicroservices.Services.CouponAPI.Data
