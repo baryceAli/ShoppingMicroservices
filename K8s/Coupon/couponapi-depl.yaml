@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: couponapi
+  namespace: coupon
+  labels:
+    app: couponapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: couponapi
+  template:
+    metadata:
+      labels:
+        app: couponapi
+    spec:
+      containers:
+        - name: couponapi
+          image: bashirmali/couponapi:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: mssql-conn
+          # env:
+          # - name: ASPNETCORE_ENVIRONMENT
+          # value: "Development"
+---
+# ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: couponapi-clusterip-svc
+  namespace: coupon
+spec:
+  selector:
+    app: couponapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+# NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: couponapi-nodeport-svc
+  namespace: coupon
+spec:
+  type: NodePort
+  selector:
+    app: couponapi
+  ports:
+    - name: tcpsql
+      port: 80
+      targetPort: 8080
+      nodePort: 31501

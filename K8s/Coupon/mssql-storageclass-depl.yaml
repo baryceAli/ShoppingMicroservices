@@ -2,6 +2,7 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: microk8s-hostpath-immediate
+  namespace: coupon
 provisioner: microk8s.io/hostpath
 volumeBindingMode: Immediate
 reclaimPolicy: Delete
