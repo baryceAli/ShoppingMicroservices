@@ -22,21 +22,22 @@ namespace ShoppingMicroservices.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<Coupon>> Get()
+        public ActionResult<ResponseDto> Get()
         {
             try
             {
                 var coupons = _repository.GetCoupons();
                 // var mapper = CouponMapper();
+                _response.Data = CouponMapper.MapCouponToDto(coupons);
 
-                return Ok(CouponMapper.MapCouponToDto(coupons));
-                return Ok(coupons);
+                return Ok(_response);
 
             }
             catch (System.Exception ex)
             {
-
-                return BadRequest($"Error: {ex.Message}");
+                _response.isSuccess = false;
+                _response.Message = ex.Message;
+                return BadRequest(_response);
             }
         }
 
@@ -50,17 +51,19 @@ namespace ShoppingMicroservices.Controllers
                 var coupon = _repository.GetCouponById(id);
                 if (coupon == null)
                 {
-
-                    return NotFound($"Couldn't find coupon with Id: {id}");
+                    _response.isSuccess = false;
+                    _response.Message = $"Couldn't find coupon with Id: {id}";
+                    return NotFound(_response);
                 }
-                return Ok(CouponMapper.MapCouponToDto(coupon));
-                return Ok(coupon);
+                _response.Data = CouponMapper.MapCouponToDto(coupon);
+                return Ok(_response);
 
             }
             catch (System.Exception ex)
             {
-
-                return BadRequest($"Error: {ex.Message}");
+                _response.isSuccess = false;
+                _response.Message = ex.Message;
+                return BadRequest(_response);
             }
         }
         // [HttpGet("{id:int}")]
@@ -73,17 +76,22 @@ namespace ShoppingMicroservices.Controllers
                 var coupon = _repository.GetCouponByCode(code);
                 if (coupon == null)
                 {
+                    _response.isSuccess = false;
+                    _response.Message = $"Couldn't find coupon with code: {code}";
 
-                    return NotFound($"Couldn't find coupon with code: {code}");
+                    return NotFound(_response);
                 }
-                return Ok(CouponMapper.MapCouponToDto(coupon));
+                _response.Data = CouponMapper.MapCouponToDto(coupon);
+                return Ok(_response);
                 // return Ok(coupon);
 
             }
             catch (System.Exception ex)
             {
+                _response.isSuccess = false;
+                _response.Message = ex.Message;
 
-                return BadRequest($"Error: {ex.Message}");
+                return BadRequest(_response);
             }
         }
 
@@ -94,19 +102,26 @@ namespace ShoppingMicroservices.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest($"Invalid Coupon");
+                    _response.isSuccess = false;
+                    _response.Message = $"Invalid Coupon";
+                    return BadRequest(_response);
                 }
+
                 var createdCoupon = _repository.AddCoupon(CouponMapper.MapAddCouponDtoToCoupon(addCouponDto));
+                _response.Data = createdCoupon;
+                // return Created("GetCouponById", _response);
                 return CreatedAtRoute(
                     "GetCouponById",         // must match the Name of GET route
                     new { id = createdCoupon.CouponId },  // route values
-                    createdCoupon            // body
+                    _response            // body
                 );
             }
             catch (System.Exception ex)
             {
+                _response.isSuccess = false;
+                _response.Message = ex.Message;
 
-                return BadRequest("Couldn't add coupon");
+                return BadRequest(_response);
             }
         }
         [HttpPut("{id:int}")]
@@ -115,11 +130,14 @@ namespace ShoppingMicroservices.Controllers
             try
             {
                 _repository.UpdateCoupon(coupon);
-                return Ok();
+                _response.Message = "Created Successfully";
+                return Ok(_response);
             }
             catch (System.Exception ex)
             {
-                return BadRequest($"Couldn't update coupon: {ex.Message}");
+                _response.isSuccess = false;
+                _response.Message = ex.Message;
+                return BadRequest(_response);
             }
         }
         [HttpDelete("{id:int}")]
@@ -128,11 +146,14 @@ namespace ShoppingMicroservices.Controllers
             try
             {
                 _repository.DeleteCoupon(id);
-                return Ok();
+                _response.Message = "Deleted Successfully";
+                return Ok(_response);
             }
             catch (System.Exception ex)
             {
-                return BadRequest($"Couldn't Delete Coupon: {ex.Message}");
+                _response.isSuccess = false;
+                _response.Message = ex.Message;
+                return BadRequest(_response);
             }
         }
 
