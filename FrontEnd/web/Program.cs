@@ -1,7 +1,20 @@
+using ShoppingMicroservices.FrontEnd.Web.Service;
+using ShoppingMicroservices.FrontEnd.Web.Service.IService;
+using ShoppingMicroservices.FrontEnd.Web.Utility;
+
 var builder = WebApplication.CreateBuilder(args);
+
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+SD.CouponAPIBase = builder.Configuration["ServiceUrls:CouponApi"]!;
+
+builder.Services.AddHttpClient();
+builder.Services.AddHttpClient<ICouponService, CouponService>();
+
+builder.Services.AddScoped<ICouponService, CouponService>();
+builder.Services.AddScoped<IBaseService, BaseService>();
 
 var app = builder.Build();
 

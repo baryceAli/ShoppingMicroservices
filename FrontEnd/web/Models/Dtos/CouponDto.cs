@@ -1,4 +1,4 @@
-namespace ShoppingMicroservices.Services.CouponAPI.Models.Dtos
+namespace ShoppingMicroservices.FrontEnd.Web.Models.Dtos
 {
 
     public class CouponDto

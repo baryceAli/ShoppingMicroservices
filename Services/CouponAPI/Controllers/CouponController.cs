@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using ShoppingMicroservices.Data;
-using ShoppingMicroservices.Data.Dto;
+
 using ShoppingMicroservices.Services.CouponAPI.Data;
 using ShoppingMicroservices.Services.CouponAPI.Mapper;
 using ShoppingMicroservices.Services.CouponAPI.Models;
 using ShoppingMicroservices.Services.CouponAPI.Models.Dtos;
+using ShoppingMicroservices.Services.Models.Dto;
 
 namespace ShoppingMicroservices.Controllers
 {
@@ -125,10 +126,11 @@ namespace ShoppingMicroservices.Controllers
             }
         }
         [HttpPut("{id:int}")]
-        public ActionResult Put(int id, [FromBody] Coupon coupon)
+        public ActionResult Put(int id, [FromBody] AddCouponDto addCouponDto)
         {
             try
             {
+                var coupon = CouponMapper.MapAddCouponDtoToCoupon(addCouponDto);
                 _repository.UpdateCoupon(coupon);
                 _response.Message = "Created Successfully";
                 return Ok(_response);

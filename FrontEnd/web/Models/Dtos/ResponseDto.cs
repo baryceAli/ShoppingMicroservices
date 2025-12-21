@@ -1,4 +1,4 @@
-namespace ShoppingMicroservices.Data.Dto
+namespace ShoppingMicroservices.FrontEnd.Web.Models.Dtos
 {
     public class ResponseDto
     {
