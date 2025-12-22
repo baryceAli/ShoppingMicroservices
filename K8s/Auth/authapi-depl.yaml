@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authapi
+  namespace: auth
+  labels:
+    app: authapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: authapi
+  template:
+    metadata:
+      labels:
+        app: authapi
+    spec:
+      containers:
+        - name: authapi
+          image: bashirmali/authapi:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: mssql-conn-auth
+          # env:
+          # - name: ASPNETCORE_ENVIRONMENT
+          # value: "Development"
+---
+# ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: authapi-clusterip-svc
+  namespace: auth
+spec:
+  selector:
+    app: authapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+# NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: authapi-nodeport-svc
+  namespace: auth
+spec:
+  type: NodePort
+  selector:
+    app: authapi
+  ports:
+    - name: tcpsql
+      port: 80
+      targetPort: 8080
+      nodePort: 31502
