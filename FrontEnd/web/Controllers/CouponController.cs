@@ -32,6 +32,10 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 coupons = JsonSerializer.Deserialize<List<CouponDto>>(Convert.ToString(response!.Data!), options);
             }
+            else
+            {
+                TempData["error"] = response?.Message;
+            }
             return View(coupons);
         }
 
@@ -43,14 +47,25 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(CouponDto couponDto)
         {
+            //  response = new();
             if (ModelState.IsValid)
             {
                 ResponseDto? response = await _couponService.CreateCouponAsync(CouponMapper.MapCouponDtoToAddCouponDto(couponDto));
                 if (response != null && response.isSuccess)
                 {
+                    TempData["success"] = "Coupon created successfully";
                     return RedirectToAction(nameof(Index));
 
                 }
+                else
+                {
+                    TempData["error"] = response?.Message;
+                }
+
+            }
+            else
+            {
+                TempData["error"] = "Please make sure you entered a valid data";
             }
             return View(couponDto);
         }
@@ -79,9 +94,15 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
             {
                 // var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 // var couponDto = JsonSerializer.Deserialize<CouponDto>(Convert.ToString(response!.Data!), options);
+                TempData["success"] = "Coupon deleted successfully";
                 return RedirectToAction(nameof(Index));
 
             }
+            else
+            {
+                TempData["error"] = response?.Message;
+            }
+
 
             return View(couponDto);
         }
