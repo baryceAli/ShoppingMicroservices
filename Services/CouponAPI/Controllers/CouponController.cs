@@ -5,7 +5,7 @@ using ShoppingMicroservices.Services.CouponAPI.Data;
 using ShoppingMicroservices.Services.CouponAPI.Mapper;
 using ShoppingMicroservices.Services.CouponAPI.Models;
 using ShoppingMicroservices.Services.CouponAPI.Models.Dtos;
-using ShoppingMicroservices.Services.Models.Dto;
+using ShoppingMicroservices.Services.CouponAPI.Models.Dto;
 
 namespace ShoppingMicroservices.Controllers
 {
