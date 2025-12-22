@@ -35,6 +35,7 @@ applyMigration();
 
 app.Run();
 
+
 void applyMigration()
 {
     using (var scope = app.Services.CreateScope())
