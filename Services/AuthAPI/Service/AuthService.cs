@@ -62,10 +62,11 @@ namespace ShoppingMicroservices.Services.AuthAPI.Service
                 PhoneNumber = user.PhoneNumber
             };
 
+            var roles = await _userManager.GetRolesAsync(user);
             LoginResponseDto loginResponseDto = new()
             {
                 UserDto = userDto,
-                Token = _jwtTockenGenerator.GenerateToken(user)
+                Token = _jwtTockenGenerator.GenerateToken(user, roles)
             };
 
             return loginResponseDto;

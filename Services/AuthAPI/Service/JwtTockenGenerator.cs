@@ -16,7 +16,7 @@ namespace ShoppingMicroservices.Services.AuthAPI.Service
         {
             this._jwtOptions = jwtOptions.Value;
         }
-        public string GenerateToken(ApplicationUser applicationUser)
+        public string GenerateToken(ApplicationUser applicationUser, IEnumerable<string> roles)
         {
             var jwtTokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtOptions.Secret);
@@ -30,6 +30,8 @@ namespace ShoppingMicroservices.Services.AuthAPI.Service
 
 
             };
+            claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Audience = _jwtOptions.Audience,

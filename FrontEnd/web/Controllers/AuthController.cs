@@ -56,9 +56,14 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
             }
             else
             {
-                ModelState.AddModelError("CustomError", responseDto!.Message!);
+                TempData["error"] = $"Login Faild: {responseDto.Message}";
                 return View(loginRequestDto);
             }
+
+            // else
+            // {
+            //     ModelState.AddModelError("CustomError", responseDto!.Message!);
+            // }
 
         }
 
@@ -100,6 +105,10 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
                     return View(registerationRequestDto);
                 }
             }
+            else
+            {
+                TempData["error"] = $"Registeration Faild: {responseDto.Message}";
+            }
 
 
             var roleList = new List<SelectListItem>()
@@ -108,7 +117,7 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
               new SelectListItem{Text=SD.RoleCustomer, Value=SD.RoleCustomer}
             };
             ViewBag.RoleList = roleList;
-            TempData["error"] = $"Registeration Faild: {responseDto.Message}";
+
             return View(registerationRequestDto);
         }
         private async Task SignInUser(LoginResponseDto loginResponseDto)
@@ -127,6 +136,7 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
                 new Claim(JwtRegisteredClaimNames.Sub, jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)!.Value),
                 new Claim(JwtRegisteredClaimNames.Name, jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name)!.Value),
                 new Claim(ClaimTypes.Name, jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)!.Value),
+                new Claim(ClaimTypes.Role, jwt.Claims.FirstOrDefault(c => c.Type == "role")!.Value),
             });
             var principal = new ClaimsPrincipal(identiry);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
