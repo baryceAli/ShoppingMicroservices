@@ -1,5 +1,7 @@
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ShoppingMicroservices.FrontEnd.Web.Models.Dto;
 using ShoppingMicroservices.FrontEnd.Web.Models.Dtos;
@@ -28,6 +30,29 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
             LoginRequestDto loginRequestDto = new LoginRequestDto();
             return View(loginRequestDto);
         }
+        [HttpPost]
+        public async Task<IActionResult> Login(LoginRequestDto loginRequestDto)
+        {
+            ResponseDto? responseDto = await _authService.LoginAsync(loginRequestDto);
+
+            if (responseDto != null && responseDto.isSuccess)
+            {
+
+                LoginResponseDto loginResponseDto = JsonSerializer.Deserialize<LoginResponseDto>(responseDto!.Data!.ToString()!)!;
+
+                return RedirectToAction("Index", "Home");
+                // TempData["error"] = $"Registeration Faild: {responseDto.Message}";
+                // return View(responseDto);
+
+            }
+            else
+            {
+                ModelState.AddModelError("CustomError", responseDto!.Message!);
+                return View(loginRequestDto);
+            }
+
+        }
+
 
         [HttpGet]
         public IActionResult Register()
