@@ -1,6 +1,8 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ShoppingMicroservices.FrontEnd.Web.Models.Dto;
+using ShoppingMicroservices.FrontEnd.Web.Models.Dtos;
 using ShoppingMicroservices.FrontEnd.Web.Service.IService;
 using ShoppingMicroservices.FrontEnd.Web.Utility;
 
@@ -36,10 +38,45 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
               new SelectListItem{Text=SD.RoleCustomer, Value=SD.RoleCustomer}
             };
             ViewBag.RoleList = roleList;
-            RegisterationRequestDto registerationRequestDto = new();
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Register(RegisterationRequestDto registerationRequestDto)
+        {
+            ResponseDto? responseDto = await _authService.RegisterAsync(registerationRequestDto);
+
+            ResponseDto? assignRoleResponse;
+            if (responseDto != null && responseDto.isSuccess)
+            {
+                if (string.IsNullOrEmpty(registerationRequestDto.RoleName))
+                {
+                    registerationRequestDto.RoleName = SD.RoleCustomer;
+                }
+
+                assignRoleResponse = await _authService.AssignRoleAsync(registerationRequestDto);
+                if (assignRoleResponse != null && assignRoleResponse.isSuccess)
+                {
+                    TempData["success"] = "Registeration Successful";
+                    registerationRequestDto = new();
+                    return RedirectToAction(nameof(Login));
+                }
+                else
+                {
+                    TempData["error"] = $"Registeration Faild: {responseDto.Message}";
+                    return View(registerationRequestDto);
+                }
+            }
+
+
+            var roleList = new List<SelectListItem>()
+            {
+              new SelectListItem{Text=SD.RoleAdmin, Value=SD.RoleAdmin},
+              new SelectListItem{Text=SD.RoleCustomer, Value=SD.RoleCustomer}
+            };
+            ViewBag.RoleList = roleList;
+            TempData["error"] = $"Registeration Faild: {responseDto.Message}";
             return View(registerationRequestDto);
         }
-
         [HttpGet]
         public IActionResult Logout()
         {
