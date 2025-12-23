@@ -29,8 +29,9 @@ namespace ShoppingMicroservices.FrontEnd.Web.Service
             {
                 ApiType = SD.ApiType.POST,
                 Url = $"{SD.AuthAPIBase}/api/Auth/login",
-                Data = loginRequestDto
-            });
+                Data = loginRequestDto,
+
+            }, withBearer: false);
         }
 
         public async Task<ResponseDto?> RegisterAsync(RegisterationRequestDto registerationRequestDto)
@@ -40,7 +41,7 @@ namespace ShoppingMicroservices.FrontEnd.Web.Service
                 ApiType = SD.ApiType.POST,
                 Url = $"{SD.AuthAPIBase}/api/Auth/register",
                 Data = registerationRequestDto
-            });
+            }, withBearer: false);
         }
     }
 

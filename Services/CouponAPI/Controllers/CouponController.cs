@@ -6,6 +6,7 @@ using ShoppingMicroservices.Services.CouponAPI.Mapper;
 using ShoppingMicroservices.Services.CouponAPI.Models;
 using ShoppingMicroservices.Services.CouponAPI.Models.Dtos;
 using ShoppingMicroservices.Services.CouponAPI.Models.Dto;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ShoppingMicroservices.Controllers
 {
@@ -23,6 +24,7 @@ namespace ShoppingMicroservices.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public ActionResult<ResponseDto> Get()
         {
             try

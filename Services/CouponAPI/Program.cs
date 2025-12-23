@@ -1,7 +1,11 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
 using ShoppingMicroservices.Data;
 using ShoppingMicroservices.Services.CouponAPI.Data;
+using ShoppingMicroservices.Services.CouponAPI.Utils;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,9 +15,62 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(buil
 builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+// builder.Services.AddOpenApi();
+builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
+// builder.Services.AddOpenApi(options =>
+// {
+//     options.AddSecurityScheme("Bearer", securityScheme =>
+//     {
+//         securityScheme.Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http;
+//         securityScheme.Scheme = "bearer";
+//         securityScheme.BearerFormat = "JWT";
+//         securityScheme.In = Microsoft.OpenApi.Models.ParameterLocation.Header;
+//         securityScheme.Description = "Enter JWT token";
+//     });
+
+//     options.AddSecurityRequirement(securityRequirement =>
+//     {
+//         securityRequirement.Add(
+//             new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+//             {
+//                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
+//                 {
+//                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+//                     Id = "Bearer"
+//                 }
+//             },
+//             Array.Empty<string>()
+//         );
+//     });
+// });
+
+
 builder.Services.AddEndpointsApiExplorer();
 
+var secret = builder.Configuration.GetValue<string>("ApiSettings:Secret");
+var issuer = builder.Configuration.GetValue<string>("ApiSettings:Issuer");
+var audience = builder.Configuration.GetValue<string>("ApiSettings:Audience");
+
+var key = Encoding.ASCII.GetBytes(secret);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = issuer,
+        ValidateAudience = true,
+        ValidAudience = audience
+    };
+});
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
@@ -27,6 +84,10 @@ if (app.Environment.IsDevelopment() || 1 == 1)
 }
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 
 
