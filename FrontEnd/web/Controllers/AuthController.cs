@@ -1,5 +1,9 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -13,14 +17,17 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
     public class AuthController : Controller
     {
         private readonly IAuthService _authService;
+        private readonly ITokenProvider _tokenProvider;
         private readonly ILogger<CouponController> _logger;
 
         public AuthController(
                     IAuthService authService,
+                    ITokenProvider tokenProvider,
                     ILogger<CouponController> logger
                     )
         {
             this._authService = authService;
+            this._tokenProvider = tokenProvider;
             this._logger = logger;
         }
 
@@ -37,9 +44,11 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
 
             if (responseDto != null && responseDto.isSuccess)
             {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-                LoginResponseDto loginResponseDto = JsonSerializer.Deserialize<LoginResponseDto>(responseDto!.Data!.ToString()!)!;
-
+                LoginResponseDto loginResponseDto = JsonSerializer.Deserialize<LoginResponseDto>(responseDto!.Data!.ToString()!, options)!;
+                await SignInUser(loginResponseDto);
+                _tokenProvider.SetToken(loginResponseDto.Token);
                 return RedirectToAction("Index", "Home");
                 // TempData["error"] = $"Registeration Faild: {responseDto.Message}";
                 // return View(responseDto);
@@ -102,10 +111,33 @@ namespace ShoppingMicroservices.FrontEnd.Web.Controllers
             TempData["error"] = $"Registeration Faild: {responseDto.Message}";
             return View(registerationRequestDto);
         }
-        [HttpGet]
-        public IActionResult Logout()
+        private async Task SignInUser(LoginResponseDto loginResponseDto)
         {
-            return View();
+
+            var handler = new JwtSecurityTokenHandler();
+            var jwt = handler.ReadJwtToken(loginResponseDto.Token);
+            var identiry = new ClaimsIdentity(CookieAuthenticationDefaults.AuthenticationScheme);
+            // identiry.AddClaim(
+            //     new Claim(JwtRegisteredClaimNames.Email, jwt.Claims.FirstOrDefault(c => c.Value == JwtRegisteredClaimNames.Email).Value)
+            //     );
+
+            identiry.AddClaims(new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Email, jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)!.Value),
+                new Claim(JwtRegisteredClaimNames.Sub, jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Sub)!.Value),
+                new Claim(JwtRegisteredClaimNames.Name, jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Name)!.Value),
+                new Claim(ClaimTypes.Name, jwt.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email)!.Value),
+            });
+            var principal = new ClaimsPrincipal(identiry);
+            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+
+        }
+        [HttpGet]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync();
+            _tokenProvider.ClearToken();
+            return RedirectToAction("Index", "Home");
         }
     }
 }
