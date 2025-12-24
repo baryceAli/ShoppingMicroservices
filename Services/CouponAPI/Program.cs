@@ -17,32 +17,6 @@ builder.Services.AddScoped<ICouponRepository, CouponRepository>();
 builder.Services.AddControllers();
 // builder.Services.AddOpenApi();
 builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
-// builder.Services.AddOpenApi(options =>
-// {
-//     options.AddSecurityScheme("Bearer", securityScheme =>
-//     {
-//         securityScheme.Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http;
-//         securityScheme.Scheme = "bearer";
-//         securityScheme.BearerFormat = "JWT";
-//         securityScheme.In = Microsoft.OpenApi.Models.ParameterLocation.Header;
-//         securityScheme.Description = "Enter JWT token";
-//     });
-
-//     options.AddSecurityRequirement(securityRequirement =>
-//     {
-//         securityRequirement.Add(
-//             new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-//             {
-//                 Reference = new Microsoft.OpenApi.Models.OpenApiReference
-//                 {
-//                     Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-//                     Id = "Bearer"
-//                 }
-//             },
-//             Array.Empty<string>()
-//         );
-//     });
-// });
 
 
 builder.Services.AddEndpointsApiExplorer();

@@ -31,8 +31,8 @@ namespace ShoppingMicroservices.Services.AuthAPI.Service
             var user = await _userManager.FindByEmailAsync(email);
             if (user != null)
             {
-
-                if (!(await _roleManager.RoleExistsAsync(roleName)))
+                var isRoleExists = await _roleManager.RoleExistsAsync(roleName);
+                if (!isRoleExists)
                 {
                     await _roleManager.CreateAsync(new IdentityRole(roleName));
                 }

@@ -1,37 +1,34 @@
-using Microsoft.AspNetCore.Mvc;
-using ShoppingMicroservices.Data;
-
-using ShoppingMicroservices.Services.CouponAPI.Data;
-using ShoppingMicroservices.Services.CouponAPI.Mapper;
-using ShoppingMicroservices.Services.CouponAPI.Models;
-using ShoppingMicroservices.Services.CouponAPI.Models.Dtos;
-using ShoppingMicroservices.Services.CouponAPI.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ShoppingMicroservices.Services.CouponAPI.Mapper;
+using ShoppingMicroservices.Services.ProductAPI.Data;
+using ShoppingMicroservices.Services.ProductAPI.Models.Dto;
 
-namespace ShoppingMicroservices.Controllers
+namespace ShoppingMicroservices.Services.ProductAPI.Controllers
 {
     [Route("/api/[controller]")]
     [ApiController]
-    public class CouponController : Controller
+    public class ProductController : ControllerBase
     {
-        private readonly ICouponRepository _repository;
+        private readonly IProductRepository _repository;
         private readonly ResponseDto _response;
 
-        public CouponController(ICouponRepository repository)
+        public ProductController(IProductRepository repository)
         {
             this._repository = repository;
             _response = new ResponseDto();
         }
 
+
         [HttpGet]
-        [Authorize]
+        // [Authorize]
         public ActionResult<ResponseDto> Get()
         {
             try
             {
-                var coupons = _repository.GetCoupons();
+                var products = _repository.GetProducts();
                 // var mapper = CouponMapper();
-                _response.Data = CouponMapper.MapCouponToDto(coupons);
+                _response.Data = ProductMapper.MapProductToDto(products);
 
                 return Ok(_response);
 
@@ -45,20 +42,20 @@ namespace ShoppingMicroservices.Controllers
         }
 
         // [HttpGet("{id:int}")]
-        [HttpGet("{id}", Name = "GetCouponById")]
+        [HttpGet("{id}", Name = "GetById")]
         // [Route("GetCouponById/{id:int}")]
         public ActionResult<ResponseDto> Get(int id)
         {
             try
             {
-                var coupon = _repository.GetCouponById(id);
-                if (coupon == null)
+                var product = _repository.GetProductById(id);
+                if (product == null)
                 {
                     _response.isSuccess = false;
-                    _response.Message = $"Couldn't find coupon with Id: {id}";
+                    _response.Message = $"Couldn't find a product with Id: {id}";
                     return NotFound(_response);
                 }
-                _response.Data = CouponMapper.MapCouponToDto(coupon);
+                _response.Data = ProductMapper.MapProductToDto(product);
                 return Ok(_response);
 
             }
@@ -69,54 +66,53 @@ namespace ShoppingMicroservices.Controllers
                 return BadRequest(_response);
             }
         }
-        // [HttpGet("{id:int}")]
-        [HttpGet("GetCouponByCode/{code}")]
-        // [Route("GetCouponById/{id:int}")]
-        public ActionResult<ResponseDto> GetCouponByCode(string code)
-        {
-            try
-            {
-                var coupon = _repository.GetCouponByCode(code);
-                if (coupon == null)
-                {
-                    _response.isSuccess = false;
-                    _response.Message = $"Couldn't find coupon with code: {code}";
 
-                    return NotFound(_response);
-                }
-                _response.Data = CouponMapper.MapCouponToDto(coupon);
-                return Ok(_response);
-                // return Ok(coupon);
+        // [HttpGet("GetCouponByCode/{code}")]
+        // public ActionResult<ResponseDto> GetCouponByCode(string code)
+        // {
+        //     try
+        //     {
+        //         var coupon = _repository.GetCouponByCode(code);
+        //         if (coupon == null)
+        //         {
+        //             _response.isSuccess = false;
+        //             _response.Message = $"Couldn't find coupon with code: {code}";
 
-            }
-            catch (System.Exception ex)
-            {
-                _response.isSuccess = false;
-                _response.Message = ex.Message;
+        //             return NotFound(_response);
+        //         }
+        //         _response.Data = CouponMapper.MapCouponToDto(coupon);
+        //         return Ok(_response);
+        //         // return Ok(coupon);
 
-                return BadRequest(_response);
-            }
-        }
+        //     }
+        //     catch (System.Exception ex)
+        //     {
+        //         _response.isSuccess = false;
+        //         _response.Message = ex.Message;
+
+        //         return BadRequest(_response);
+        //     }
+        // }
 
         [HttpPost]
         [Authorize(Roles = "Admin")]
-        public ActionResult Post([FromBody] AddCouponDto addCouponDto)
+        public ActionResult Post([FromBody] ProductDto productDto)
         {
             try
             {
                 if (!ModelState.IsValid)
                 {
                     _response.isSuccess = false;
-                    _response.Message = $"Invalid Coupon";
+                    _response.Message = $"Invalid Product";
                     return BadRequest(_response);
                 }
 
-                var createdCoupon = _repository.AddCoupon(CouponMapper.MapAddCouponDtoToCoupon(addCouponDto));
-                _response.Data = createdCoupon;
+                var createdProduct = _repository.AddProduct(ProductMapper.MapDtoToProduct(productDto));
+                _response.Data = createdProduct;
                 // return Created("GetCouponById", _response);
                 return CreatedAtRoute(
-                    "GetCouponById",         // must match the Name of GET route
-                    new { id = createdCoupon.CouponId },  // route values
+                    "GetById",         // must match the Name of GET route
+                    new { id = createdProduct.ProductId },  // route values
                     _response            // body
                 );
             }
@@ -130,12 +126,13 @@ namespace ShoppingMicroservices.Controllers
         }
         [HttpPut("{id:int}")]
         [Authorize(Roles = "Admin")]
-        public ActionResult Put(int id, [FromBody] AddCouponDto addCouponDto)
+        public ActionResult Put(int id, [FromBody] ProductDto productDto)
         {
             try
             {
-                var coupon = CouponMapper.MapAddCouponDtoToCoupon(addCouponDto);
-                _repository.UpdateCoupon(coupon);
+                var product = ProductMapper.MapDtoToProduct(productDto);
+                product.ProductId = id;
+                _repository.UpdateProduct(product);
                 _response.Message = "Updated Successfully";
                 return Ok(_response);
             }
@@ -152,7 +149,7 @@ namespace ShoppingMicroservices.Controllers
         {
             try
             {
-                _repository.DeleteCoupon(id);
+                _repository.DeleteProduct(id);
                 _response.Message = "Deleted Successfully";
                 return Ok(_response);
             }
@@ -165,4 +162,5 @@ namespace ShoppingMicroservices.Controllers
         }
 
     }
+
 }
