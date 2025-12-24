@@ -99,6 +99,7 @@ namespace ShoppingMicroservices.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public ActionResult Post([FromBody] AddCouponDto addCouponDto)
         {
             try
@@ -128,6 +129,7 @@ namespace ShoppingMicroservices.Controllers
             }
         }
         [HttpPut("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public ActionResult Put(int id, [FromBody] AddCouponDto addCouponDto)
         {
             try
@@ -145,6 +147,7 @@ namespace ShoppingMicroservices.Controllers
             }
         }
         [HttpDelete("{id:int}")]
+        [Authorize(Roles = "Admin")]
         public ActionResult Delete(int id)
         {
             try
