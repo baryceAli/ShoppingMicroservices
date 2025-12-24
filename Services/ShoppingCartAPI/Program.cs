@@ -1,41 +1,84 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
+using ShoppingMicroservices.Services.ShoppingCartAPI.Data;
+using ShoppingMicroservices.Services.ShoppingCartAPI.Utils;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// asdsd
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
+
+builder.Services.AddControllers();
+// builder.Services.AddOpenApi();
+builder.Services.AddOpenApi("v1", options => { options.AddDocumentTransformer<BearerSecuritySchemeTransformer>(); });
+
+builder.Services.AddEndpointsApiExplorer();
+
+var secret = builder.Configuration.GetValue<string>("ApiSettings:Secret");
+var issuer = builder.Configuration.GetValue<string>("ApiSettings:Issuer");
+var audience = builder.Configuration.GetValue<string>("ApiSettings:Audience");
+
+var key = Encoding.ASCII.GetBytes(secret);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x =>
+{
+    x.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = issuer,
+        ValidateAudience = true,
+        ValidAudience = audience
+    };
+});
+
+builder.Services.AddAuthorization();
+
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || 1 == 1)
 {
     app.MapOpenApi();
+    app.MapScalarApiReference();
 }
 
 app.UseHttpsRedirection();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+
+
+applyMigration();
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
+
+void applyMigration()
 {
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    using (var scope = app.Services.CreateScope())
+    {
+        var _context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        if (_context.Database.GetPendingMigrations().Any())
+        {
+            _context.Database.Migrate();
+        }
+    }
 }
+
+
