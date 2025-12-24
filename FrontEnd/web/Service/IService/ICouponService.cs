@@ -1,4 +1,4 @@
-using ShoppingMicroservices.FrontEnd.Web.Models.Dtos;
+using ShoppingMicroservices.FrontEnd.Web.Models.Dto;
 
 namespace ShoppingMicroservices.FrontEnd.Web.Service.IService
 {

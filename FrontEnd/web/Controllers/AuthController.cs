@@ -1,14 +1,11 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ShoppingMicroservices.FrontEnd.Web.Models.Dto;
-using ShoppingMicroservices.FrontEnd.Web.Models.Dtos;
 using ShoppingMicroservices.FrontEnd.Web.Service.IService;
 using ShoppingMicroservices.FrontEnd.Web.Utility;
 

@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productapi
+  namespace: product
+  labels:
+    app: productapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: productapi
+  template:
+    metadata:
+      labels:
+        app: productapi
+    spec:
+      containers:
+        - name: productapi
+          image: bashirmali/productapi:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: mssql-conn-product
+          # env:
+          # - name: ASPNETCORE_ENVIRONMENT
+          # value: "Development"
+---
+# ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: productapi-clusterip-svc
+  namespace: product
+spec:
+  selector:
+    app: productapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+# NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: productapi-nodeport-svc
+  namespace: product
+spec:
+  type: NodePort
+  selector:
+    app: productapi
+  ports:
+    - name: tcpsql
+      port: 80
+      targetPort: 8080
+      nodePort: 31500

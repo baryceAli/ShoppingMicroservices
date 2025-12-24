@@ -2,8 +2,7 @@ using System.Collections;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using ShoppingMicroservices.FrontEnd.Mapper;
-using ShoppingMicroservices.FrontEnd.Web.Models.Dtos;
-using ShoppingMicroservices.FrontEnd.Web.Service;
+using ShoppingMicroservices.FrontEnd.Web.Models.Dto;
 using ShoppingMicroservices.FrontEnd.Web.Service.IService;
 
 namespace ShoppingMicroservices.FrontEnd.Web.Controllers

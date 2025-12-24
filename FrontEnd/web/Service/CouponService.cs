@@ -1,4 +1,4 @@
-using ShoppingMicroservices.FrontEnd.Web.Models.Dtos;
+using ShoppingMicroservices.FrontEnd.Web.Models.Dto;
 using ShoppingMicroservices.FrontEnd.Web.Service.IService;
 using ShoppingMicroservices.FrontEnd.Web.Utility;
 
@@ -12,24 +12,26 @@ namespace ShoppingMicroservices.FrontEnd.Web.Service
         {
             this._baseService = baseService;
         }
-        public Task<ResponseDto?> CreateCouponAsync(AddCouponDto addCouponDto)
+        public async Task<ResponseDto?> CreateCouponAsync(AddCouponDto addCouponDto)
         {
-            return _baseService.SendAsync(new RequestDto
+
+
+
+            return await _baseService.SendAsync(new RequestDto
             {
                 ApiType = SD.ApiType.POST,
                 Data = addCouponDto,
-                Url = $"{SD.CouponAPIBase}/api/coupon",
-
-            });
+                Url = $"{SD.CouponAPIBase}/api/Coupon",
+            }, withBearer: true);
         }
 
-        public Task<ResponseDto?> DeleteCouponAsync(int id)
+        public async Task<ResponseDto?> DeleteCouponAsync(int id)
         {
-            return _baseService.SendAsync(new RequestDto
+            return await _baseService.SendAsync(new RequestDto
             {
                 ApiType = SD.ApiType.DELETE,
                 Url = $"{SD.CouponAPIBase}/api/coupon/{id}",
-            });
+            }, withBearer: true);
         }
 
         public Task<ResponseDto?> GetAllCouponsAsync()
@@ -38,7 +40,7 @@ namespace ShoppingMicroservices.FrontEnd.Web.Service
             {
                 ApiType = SD.ApiType.GET,
                 Url = $"{SD.CouponAPIBase}/api/coupon",
-            });
+            }, withBearer: true);
         }
 
         public Task<ResponseDto?> GetCouponAsync(string code)
@@ -47,7 +49,7 @@ namespace ShoppingMicroservices.FrontEnd.Web.Service
             {
                 ApiType = SD.ApiType.GET,
                 Url = $"{SD.CouponAPIBase}/api/coupon/GetCouponByCode/{code}",
-            });
+            }, withBearer: true);
         }
 
         public Task<ResponseDto?> GetCouponByIdAsync(int id)

@@ -1,7 +1,7 @@
 
 
 using Riok.Mapperly.Abstractions;
-using ShoppingMicroservices.FrontEnd.Web.Models.Dtos;
+using ShoppingMicroservices.FrontEnd.Web.Models.Dto;
 
 namespace ShoppingMicroservices.FrontEnd.Mapper
 {

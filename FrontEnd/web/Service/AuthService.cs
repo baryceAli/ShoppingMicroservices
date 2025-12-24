@@ -1,5 +1,4 @@
 using ShoppingMicroservices.FrontEnd.Web.Models.Dto;
-using ShoppingMicroservices.FrontEnd.Web.Models.Dtos;
 using ShoppingMicroservices.FrontEnd.Web.Service.IService;
 using ShoppingMicroservices.FrontEnd.Web.Utility;
 

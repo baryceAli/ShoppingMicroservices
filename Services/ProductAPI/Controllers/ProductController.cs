@@ -43,7 +43,7 @@ namespace ShoppingMicroservices.Services.ProductAPI.Controllers
 
         // [HttpGet("{id:int}")]
         [HttpGet("{id}", Name = "GetById")]
-        // [Route("GetCouponById/{id:int}")]
+        // [Authorize]
         public ActionResult<ResponseDto> Get(int id)
         {
             try
@@ -95,7 +95,7 @@ namespace ShoppingMicroservices.Services.ProductAPI.Controllers
         // }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "ADMIN")]
         public ActionResult Post([FromBody] ProductDto productDto)
         {
             try
@@ -125,13 +125,13 @@ namespace ShoppingMicroservices.Services.ProductAPI.Controllers
             }
         }
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "ADMIN")]
         public ActionResult Put(int id, [FromBody] ProductDto productDto)
         {
             try
             {
                 var product = ProductMapper.MapDtoToProduct(productDto);
-                product.ProductId = id;
+                // product.ProductId = id;
                 _repository.UpdateProduct(product);
                 _response.Message = "Updated Successfully";
                 return Ok(_response);
@@ -144,7 +144,7 @@ namespace ShoppingMicroservices.Services.ProductAPI.Controllers
             }
         }
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "ADMIN")]
         public ActionResult Delete(int id)
         {
             try

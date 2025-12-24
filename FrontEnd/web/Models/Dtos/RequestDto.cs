@@ -1,6 +1,6 @@
 using static ShoppingMicroservices.FrontEnd.Web.Utility.SD;
 
-namespace ShoppingMicroservices.FrontEnd.Web.Models.Dtos
+namespace ShoppingMicroservices.FrontEnd.Web.Models.Dto
 {
     public class RequestDto
     {

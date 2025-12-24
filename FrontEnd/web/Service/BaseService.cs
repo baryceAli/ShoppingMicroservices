@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using ShoppingMicroservices.FrontEnd.Web.Models.Dtos;
+using ShoppingMicroservices.FrontEnd.Web.Models.Dto;
 using ShoppingMicroservices.FrontEnd.Web.Service.IService;
 using ShoppingMicroservices.FrontEnd.Web.Utility;
 

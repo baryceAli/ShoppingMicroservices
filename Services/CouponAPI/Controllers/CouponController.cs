@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using ShoppingMicroservices.Data;
 
-using ShoppingMicroservices.Services.CouponAPI.Data;
 using ShoppingMicroservices.Services.CouponAPI.Mapper;
-using ShoppingMicroservices.Services.CouponAPI.Models;
 using ShoppingMicroservices.Services.CouponAPI.Models.Dtos;
 using ShoppingMicroservices.Services.CouponAPI.Models.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +10,7 @@ namespace ShoppingMicroservices.Controllers
 {
     [Route("/api/[controller]")]
     [ApiController]
-    public class CouponController : Controller
+    public class CouponController : ControllerBase
     {
         private readonly ICouponRepository _repository;
         private readonly ResponseDto _response;
@@ -99,7 +97,7 @@ namespace ShoppingMicroservices.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "ADMIN")]
         public ActionResult Post([FromBody] AddCouponDto addCouponDto)
         {
             try
@@ -129,7 +127,7 @@ namespace ShoppingMicroservices.Controllers
             }
         }
         [HttpPut("{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "ADMIN")]
         public ActionResult Put(int id, [FromBody] AddCouponDto addCouponDto)
         {
             try
@@ -147,7 +145,7 @@ namespace ShoppingMicroservices.Controllers
             }
         }
         [HttpDelete("{id:int}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "ADMIN")]
         public ActionResult Delete(int id)
         {
             try

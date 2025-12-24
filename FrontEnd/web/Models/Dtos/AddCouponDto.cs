@@ -1,4 +1,4 @@
-namespace ShoppingMicroservices.FrontEnd.Web.Models.Dtos
+namespace ShoppingMicroservices.FrontEnd.Web.Models.Dto
 {
 
     public class AddCouponDto
