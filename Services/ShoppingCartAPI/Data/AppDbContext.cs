@@ -10,7 +10,8 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Data
 
         }
 
-        public DbSet<ShoppingCart> ShoppingCarts { get; set; }
+        public DbSet<CartHeader> CartHeaders { get; set; }
+        public DbSet<CartDetails> CartDetails { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
 

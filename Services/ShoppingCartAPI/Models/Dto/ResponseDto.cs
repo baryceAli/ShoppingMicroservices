@@ -1,4 +1,4 @@
-namespace ShoppingMicroservices.Services.ProductAPI.Models.Dto
+namespace ShoppingMicroservices.Services.ShoppingCartAPI.Models.Dto
 {
     public class ResponseDto
     {

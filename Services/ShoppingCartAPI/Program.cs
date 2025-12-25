@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // asdsd
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
+// builder.Services.AddScoped<IShoppingCartRepository, ShoppingCartRepository>();
 
 builder.Services.AddControllers();
 // builder.Services.AddOpenApi();
