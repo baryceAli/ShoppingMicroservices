@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoppingMicroservices.Services.ShoppingCartAPI.Data;
 using ShoppingMicroservices.Services.ShoppingCartAPI.Mapper;
+using ShoppingMicroservices.Services.ShoppingCartAPI.Models;
 using ShoppingMicroservices.Services.ShoppingCartAPI.Models.Dto;
 
 namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
@@ -18,8 +19,42 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
             _response = new();
         }
 
-        [HttpPost("CartUpSert")]
-        public async Task<ResponseDto> CartUpSert(CartDto cartDto)
+        [HttpGet("GetCart/{userId}")]
+        public async Task<ResponseDto> GetCart(string userId)
+        {
+            try
+            {
+                CartHeader cartHeader = await _context.CartHeaders.FirstOrDefaultAsync(ch => ch.UserId == userId);
+                if (cartHeader == null)
+                {
+                    _response.isSuccess = false;
+                    _response.Data = $"No Carts found for user: {userId}";
+                }
+                IEnumerable<CartDetails> cartDetailsList = _context.CartDetails.Where(cd => cd.CartHeaderId == cartHeader.CartHeaderId);
+                CartDto cartDto = new CartDto
+                {
+                    CartHeaderDto = ShoppingCartMapper.MapCartHeaderToDto(cartHeader),
+                    CartDetails = ShoppingCartMapper.MapCartDetailsToDto(cartDetailsList)
+                };
+
+                foreach (var item in cartDto.CartDetails)
+                {
+                    cartDto.CartTotal += item.Count * item.Product.Price;
+                }
+
+                _response.Data = cartDto;
+            }
+            catch (System.Exception ex)
+            {
+                _response.isSuccess = false;
+                _response.Data = ex.Message;
+            }
+
+            return _response;
+        }
+
+        [HttpPost("CartUpsert")]
+        public async Task<ResponseDto> CartUpsert(CartDto cartDto)
         {
             try
             {
@@ -62,6 +97,34 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
 
                 }
                 _response.Data = cartDto;
+            }
+            catch (System.Exception ex)
+            {
+
+                _response.Message = ex.Message;
+                _response.isSuccess = false;
+            }
+            return _response;
+        }
+
+        [HttpPost("RemoveCart")]
+        public async Task<ResponseDto> RemoveCart([FromBody] int cartDetailsId)
+        {
+            try
+            {
+                var CartDetailsFromDB = await _context.CartDetails.FirstOrDefaultAsync(cd => cd.CartDetailsId == cartDetailsId);
+                _context.CartDetails.Remove(CartDetailsFromDB);
+                var totalCartDetailscount = _context.CartDetails.Where(cd => cd.CartHeaderId == CartDetailsFromDB.CartHeaderId).Count();
+                if (totalCartDetailscount == 1)
+                {
+                    var cartHeaderToRemove = await _context.CartHeaders.FirstAsync(ch => ch.CartHeaderId == CartDetailsFromDB.CartHeaderId);
+                    _context.CartHeaders.Remove(cartHeaderToRemove);
+
+
+                }
+                await _context.SaveChangesAsync();
+
+                _response.Data = true;
             }
             catch (System.Exception ex)
             {
