@@ -4,6 +4,8 @@ using ShoppingMicroservices.Services.ShoppingCartAPI.Data;
 using ShoppingMicroservices.Services.ShoppingCartAPI.Mapper;
 using ShoppingMicroservices.Services.ShoppingCartAPI.Models;
 using ShoppingMicroservices.Services.ShoppingCartAPI.Models.Dto;
+using ShoppingMicroservices.Services.ShoppingCartAPI.Service;
+using ShoppingMicroservices.Services.ShoppingCartAPI.Service.IService;
 
 namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
 {
@@ -12,16 +14,24 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
     public class CartController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IProductService _productService;
+        private readonly ICouponService _couponService;
         private readonly ResponseDto _response;
-        public CartController(AppDbContext context)
+        public CartController(
+            AppDbContext context,
+            IProductService productService,
+            ICouponService couponService)
         {
             this._context = context;
+            this._productService = productService;
+            this._couponService = couponService;
             _response = new();
         }
 
         [HttpGet("GetCart/{userId}")]
         public async Task<ResponseDto> GetCart(string userId)
         {
+            var products = await _productService.GetProducts();
             try
             {
                 CartHeader cartHeader = await _context.CartHeaders.FirstOrDefaultAsync(ch => ch.UserId == userId);
@@ -39,9 +49,21 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
 
                 foreach (var item in cartDto.CartDetails)
                 {
-                    cartDto.CartTotal += item.Count * item.Product.Price;
+                    item.Product = products.First(p => p.ProductId == item.ProductId);
+                    cartDto.CartHeaderDto.CartTotal += item.Count * item.Product.Price;
                 }
 
+                // Apply Coupon
+                if (!string.IsNullOrEmpty(cartDto.CartHeaderDto.CouponCode))
+                {
+                    var coupon = await _couponService.GetCoupon(cartDto.CartHeaderDto.CouponCode);
+                    if (coupon != null && cartDto.CartHeaderDto.CartTotal > coupon.MinAmount)
+                    {
+                        cartDto.CartHeaderDto.CartTotal -= coupon.DiscountAmount;
+                        cartDto.CartHeaderDto.Discount = coupon.DiscountAmount;
+
+                    }
+                }
                 _response.Data = cartDto;
             }
             catch (System.Exception ex)
@@ -50,6 +72,46 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
                 _response.Data = ex.Message;
             }
 
+            return _response;
+        }
+
+        [HttpPost("ApplyCoupon")]
+        public async Task<ResponseDto> ApplyCoupon([FromBody] CartDto cartDto)
+        {
+            try
+            {
+                var cartHeaderFromDB = await _context.CartHeaders.FirstAsync(ch => ch.UserId == cartDto.CartHeaderDto.UserId);
+                cartHeaderFromDB.CouponCode = cartDto.CartHeaderDto.CouponCode;
+                _context.CartHeaders.Update(cartHeaderFromDB);
+                await _context.SaveChangesAsync();
+                _response.Data = true;
+            }
+            catch (System.Exception ex)
+            {
+
+                _response.isSuccess = false;
+                _response.Data = ex.Message;
+            }
+            return _response;
+        }
+
+        [HttpPost("RemoveCoupon")]
+        public async Task<ResponseDto> RemoveCoupon([FromBody] CartDto cartDto)
+        {
+            try
+            {
+                var cartHeaderFromDB = await _context.CartHeaders.FirstAsync(ch => ch.UserId == cartDto.CartHeaderDto.UserId);
+                cartHeaderFromDB.CouponCode = "";
+                _context.CartHeaders.Update(cartHeaderFromDB);
+                await _context.SaveChangesAsync();
+                _response.Data = true;
+            }
+            catch (System.Exception ex)
+            {
+
+                _response.isSuccess = false;
+                _response.Data = ex.Message;
+            }
             return _response;
         }
 

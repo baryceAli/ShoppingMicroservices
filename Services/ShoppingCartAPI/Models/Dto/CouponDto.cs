@@ -1,4 +1,4 @@
-namespace ShoppingMicroservices.Services.ShoppingCartAPI.Models.Dtos
+namespace ShoppingMicroservices.Services.ShoppingCartAPI.Models.Dto
 {
 
     public class CouponDto
