@@ -29,7 +29,7 @@ namespace ShoppingCartAPI.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CartDetailsId"));
 
-                    b.Property<int?>("CartHeaderId")
+                    b.Property<int>("CartHeaderId")
                         .HasColumnType("int");
 
                     b.Property<int>("Count")
@@ -56,8 +56,8 @@ namespace ShoppingCartAPI.Migrations
                     b.Property<string>("CouponCode")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("UserId")
-                        .HasColumnType("int");
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CartHeaderId");
 
@@ -68,7 +68,9 @@ namespace ShoppingCartAPI.Migrations
                 {
                     b.HasOne("ShoppingMicroservices.Services.ShoppingCartAPI.Models.CartHeader", "CartHeader")
                         .WithMany()
-                        .HasForeignKey("CartHeaderId");
+                        .HasForeignKey("CartHeaderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("CartHeader");
                 });

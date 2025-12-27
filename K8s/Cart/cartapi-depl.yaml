@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartapi
+  namespace: cart
+  labels:
+    app: cartapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cartapi
+  template:
+    metadata:
+      labels:
+        app: cartapi
+    spec:
+      containers:
+        - name: cartapi
+          image: bashirmali/cartapi:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: mssql-conn-cart
+          # env:
+          # - name: ASPNETCORE_ENVIRONMENT
+          # value: "Development"
+---
+# ClusterIP
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartapi-clusterip-svc
+  namespace: cart
+spec:
+  selector:
+    app: cartapi
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: ClusterIP
+---
+# NodePort
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartapi-nodeport-svc
+  namespace: cart
+spec:
+  type: NodePort
+  selector:
+    app: cartapi
+  ports:
+    - name: tcpsql
+      port: 80
+      targetPort: 8080
+      nodePort: 31503

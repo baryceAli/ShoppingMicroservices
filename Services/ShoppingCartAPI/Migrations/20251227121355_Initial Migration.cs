@@ -16,7 +16,7 @@ namespace ShoppingCartAPI.Migrations
                 {
                     CartHeaderId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<int>(type: "int", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CouponCode = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -30,7 +30,7 @@ namespace ShoppingCartAPI.Migrations
                 {
                     CartDetailsId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    CartHeaderId = table.Column<int>(type: "int", nullable: true),
+                    CartHeaderId = table.Column<int>(type: "int", nullable: false),
                     ProductId = table.Column<int>(type: "int", nullable: false),
                     Count = table.Column<int>(type: "int", nullable: false)
                 },
@@ -41,7 +41,8 @@ namespace ShoppingCartAPI.Migrations
                         name: "FK_CartDetails_CartHeaders_CartHeaderId",
                         column: x => x.CartHeaderId,
                         principalTable: "CartHeaders",
-                        principalColumn: "CartHeaderId");
+                        principalColumn: "CartHeaderId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(

@@ -1,4 +1,5 @@
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -78,11 +79,14 @@ applyMigration();
 app.Run();
 
 
-void applyMigration()
+async Task applyMigration()
 {
     using (var scope = app.Services.CreateScope())
     {
         var _context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        // await _context.Database.EnsureDeletedAsync();
+        // return;
         if (_context.Database.GetPendingMigrations().Any())
         {
             _context.Database.Migrate();

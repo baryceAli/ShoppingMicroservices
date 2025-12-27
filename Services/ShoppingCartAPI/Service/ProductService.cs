@@ -19,10 +19,15 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Service
                 var client = _httpClientFactory.CreateClient("Product");
                 var response = await client.GetAsync("/api/product");
                 var apiContent = await response.Content.ReadAsStringAsync();
-                var resp = JsonSerializer.Deserialize<ResponseDto>(apiContent.ToString());
-                if (resp.isSuccess)
+                var options = new JsonSerializerOptions
                 {
-                    return JsonSerializer.Deserialize<IEnumerable<ProductDto>>(resp!.Data!.ToString())!;
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var resp = JsonSerializer.Deserialize<ResponseDto>(apiContent.ToString(), options);
+                if (resp != null && resp.isSuccess)
+                {
+                    return JsonSerializer.Deserialize<IEnumerable<ProductDto>>(resp!.Data!.ToString()!, options)!;
                 }
                 // return new List<ProductDto>();
             }

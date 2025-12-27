@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +13,16 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly IProductService _productService;
+    private readonly ICartService _cartService;
 
-    public HomeController(ILogger<HomeController> logger, IProductService productService)
+    public HomeController(
+        ILogger<HomeController> logger,
+        IProductService productService,
+        ICartService cartService)
     {
         _logger = logger;
         this._productService = productService;
+        this._cartService = cartService;
     }
 
     public async Task<IActionResult> Index()
@@ -27,7 +33,7 @@ public class HomeController : Controller
         if (response != null && response.isSuccess)
         {
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            products = JsonSerializer.Deserialize<List<ProductDto>>(Convert.ToString(response!.Data!), options);
+            products = JsonSerializer.Deserialize<List<ProductDto>>(Convert.ToString(response!.Data!)!, options)!;
         }
         else
         {
@@ -37,7 +43,7 @@ public class HomeController : Controller
     }
 
     [Authorize]
-    public async Task<IActionResult> Details(int productId)
+    public async Task<IActionResult> ProductDetails(int productId)
     {
         ResponseDto? response = await _productService.GetProductByIdAsync(productId);
 
@@ -45,7 +51,46 @@ public class HomeController : Controller
         if (response != null && response.isSuccess)
         {
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            productDto = JsonSerializer.Deserialize<ProductDto>(Convert.ToString(response!.Data!), options);
+            productDto = JsonSerializer.Deserialize<ProductDto>(Convert.ToString(response!.Data!)!, options)!;
+        }
+        else
+        {
+            TempData["error"] = response?.Message;
+        }
+        return View(productDto);
+    }
+    [Authorize]
+    [HttpPost]
+    [ActionName("ProductDetails")]
+    public async Task<IActionResult> ProductDetails(ProductDto productDto)
+    {
+        CartDto cartDto = new CartDto
+        {
+            CartHeaderDto = new CartHeaderDto
+            {
+                UserId = User.Claims.Where(c => c.Type == JwtRegisteredClaimNames.Sub)?.FirstOrDefault()?.Value,
+            },
+
+        };
+
+        var cartDetails = new CartDetailsDto
+        {
+            Count = productDto.Count,
+            ProductId = productDto.ProductId
+        };
+        List<CartDetailsDto> cartDetailsDtos = [cartDetails];
+        cartDto.CartDetails = cartDetailsDtos;
+
+
+        ResponseDto? response = await _cartService.UpsertCartAsync(cartDto);
+
+
+
+        // ProductDto productDto = new();
+        if (response != null && response.isSuccess)
+        {
+            TempData["success"] = "Item has been added to shopping cart";
+            return RedirectToAction(nameof(Index));
         }
         else
         {

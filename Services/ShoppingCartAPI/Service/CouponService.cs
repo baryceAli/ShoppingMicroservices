@@ -17,12 +17,18 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Service
             try
             {
                 var client = _httpClientFactory.CreateClient("Coupon");
-                var response = await client.GetAsync($"/api/coupon/GetByCode/{couponCode}");
+                var response = await client.GetAsync($"/api/coupon/GetCouponByCode/{couponCode}");
                 var apiContent = await response.Content.ReadAsStringAsync();
-                var resp = JsonSerializer.Deserialize<ResponseDto>(apiContent.ToString());
+                var options = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var resp = JsonSerializer.Deserialize<ResponseDto>(apiContent.ToString(), options);
                 if (resp.isSuccess)
                 {
-                    return JsonSerializer.Deserialize<CouponDto>(resp!.Data!.ToString())!;
+
+                    return JsonSerializer.Deserialize<CouponDto>(resp!.Data!.ToString()!, options)!;
                 }
                 // return new List<ProductDto>();
             }

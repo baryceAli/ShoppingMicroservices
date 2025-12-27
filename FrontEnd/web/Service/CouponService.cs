@@ -34,36 +34,36 @@ namespace ShoppingMicroservices.FrontEnd.Web.Service
             }, withBearer: true);
         }
 
-        public Task<ResponseDto?> GetAllCouponsAsync()
+        public async Task<ResponseDto?> GetAllCouponsAsync()
         {
-            return _baseService.SendAsync(new RequestDto
+            return await _baseService.SendAsync(new RequestDto
             {
                 ApiType = SD.ApiType.GET,
                 Url = $"{SD.CouponAPIBase}/api/coupon",
             }, withBearer: true);
         }
 
-        public Task<ResponseDto?> GetCouponAsync(string code)
+        public async Task<ResponseDto?> GetCouponAsync(string code)
         {
-            return _baseService.SendAsync(new RequestDto
+            return await _baseService.SendAsync(new RequestDto
             {
                 ApiType = SD.ApiType.GET,
                 Url = $"{SD.CouponAPIBase}/api/coupon/GetCouponByCode/{code}",
             }, withBearer: true);
         }
 
-        public Task<ResponseDto?> GetCouponByIdAsync(int id)
+        public async Task<ResponseDto?> GetCouponByIdAsync(int id)
         {
-            return _baseService.SendAsync(new RequestDto
+            return await _baseService.SendAsync(new RequestDto
             {
                 ApiType = SD.ApiType.GET,
                 Url = $"{SD.CouponAPIBase}/api/coupon/{id}",
             });
         }
 
-        public Task<ResponseDto?> UpdateCouponAsync(int id, AddCouponDto addCouponDto)
+        public async Task<ResponseDto?> UpdateCouponAsync(int id, AddCouponDto addCouponDto)
         {
-            return _baseService.SendAsync(new RequestDto
+            return await _baseService.SendAsync(new RequestDto
             {
                 ApiType = SD.ApiType.PUT,
                 Data = addCouponDto,

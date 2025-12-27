@@ -31,6 +31,7 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
         [HttpGet("GetCart/{userId}")]
         public async Task<ResponseDto> GetCart(string userId)
         {
+            Console.WriteLine("Inside GetCartAPI");
             var products = await _productService.GetProducts();
             try
             {
@@ -41,17 +42,27 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
                     _response.Data = $"No Carts found for user: {userId}";
                 }
                 IEnumerable<CartDetails> cartDetailsList = _context.CartDetails.Where(cd => cd.CartHeaderId == cartHeader.CartHeaderId);
+                var examineCartDetails = cartDetailsList.ToList();
                 CartDto cartDto = new CartDto
                 {
                     CartHeaderDto = ShoppingCartMapper.MapCartHeaderToDto(cartHeader),
-                    CartDetails = ShoppingCartMapper.MapCartDetailsToDto(cartDetailsList)
+                    CartDetails = ShoppingCartMapper.MapCartDetailsToDto(cartDetailsList.ToList())
                 };
 
+                var ss = cartDto;
+                List<CartDetailsDto> newCartDet = new();
                 foreach (var item in cartDto.CartDetails)
                 {
-                    item.Product = products.First(p => p.ProductId == item.ProductId);
+                    CartDetailsDto cd = new();
+                    cd = item;
+
+                    var prod = products.First(p => p.ProductId == item.ProductId);
+                    cd.Product = prod;
                     cartDto.CartHeaderDto.CartTotal += item.Count * item.Product.Price;
+
+                    newCartDet.Add(cd);
                 }
+                cartDto.CartDetails = newCartDet;
 
                 // Apply Coupon
                 if (!string.IsNullOrEmpty(cartDto.CartHeaderDto.CouponCode))
@@ -78,6 +89,7 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
         [HttpPost("ApplyCoupon")]
         public async Task<ResponseDto> ApplyCoupon([FromBody] CartDto cartDto)
         {
+            Console.WriteLine("--> CartAPI: ApplyCoupon");
             try
             {
                 var cartHeaderFromDB = await _context.CartHeaders.FirstAsync(ch => ch.UserId == cartDto.CartHeaderDto.UserId);
@@ -164,6 +176,7 @@ namespace ShoppingMicroservices.Services.ShoppingCartAPI.Controllers
             {
 
                 _response.Message = ex.Message;
+                _response.Message = ex.ToString();
                 _response.isSuccess = false;
             }
             return _response;
